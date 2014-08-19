@@ -1,11 +1,7 @@
----
-title: "Peer-Assessment-1"
-author: "Waleed Javed"
-date: "Sunday, August 17, 2014"
-output: html_document
----
+# Reproducible Research: Peer Assessment 1
 
-### Loading and Preprocessing the Data
+
+## Loading and preprocessing the data
 
 The data file called "activity.csv" was downloaded from the course website, saved
 in the local repository, and then called into RStudio using the following code:
@@ -17,7 +13,7 @@ data <- read.csv("activity.csv",stringsAsFactors=T)
 The "Date" column was imported as a Factor to make plotting and computation 
 easier.
 
-### Mean total number of steps taken per day
+## What is mean total number of steps taken per day?
 
 Next, total steps per day were calculated using:
 ```{r}
@@ -34,7 +30,8 @@ median(stepsPerDay,na.rm=T)
 ```
 Note: Removing NAs was necessary to compute the summaries.
 
-### Average Daily Activity Pattern
+
+## What is the average daily activity pattern?
 
 First, interval names are extracted from the original data file. Then, mean number
 of steps are calculated for these intervals across ALL DAYS and plotted using a
@@ -53,7 +50,8 @@ frame[frame$stepsPerInt==max(stepsPerInt),1]
 
 ```
 
-### Imputing Missing Values
+## Imputing missing values
+
 
 The following shows the total number of missing values in the original dataset:
 ```{r}
@@ -85,7 +83,7 @@ median(for_hist)
 The histogram mostly looks similar, except that the frequency for the number of
 steps in the middle has increased. The mean value is exactly same, however, the median has changed and has become equal to the mean. 
 
-### Differences in weekdays and weekends
+## Are there differences in activity patterns between weekdays and weekends?
 
 First, the "Date" column in the "newData" dataset is converted to Date class and then a new column is introduced to create a new dataset called "final_data". The new column is called "typeOfDay". A loop is used to go through all the rows of "newData" and see which day of the week it is. If it is a weekend, then "weekend" is entered into "typeOfDay" column. Otherwise, "weekday" is entered. 
 
@@ -103,7 +101,7 @@ typeOfDay = as.factor(typeOfDay)
 final_data = data.frame(newData,typeOfDay)
 
 ```
-Then, two subsets of "final_data" are extracted based on the type of day:
+Then, two subsets of "final_data" are extracted based 
 
 ```{r}
 # weekday_data will be data for weekdays
@@ -116,13 +114,19 @@ Next, a panel plot is generated using base plotting system for mean number of
 steps vs. intervals on weekdays and weekends:
 
 ```{r}
-map = rbind(c(1,1),c(2,2))
-layout(map)
+
 plot_weekday <- as.numeric(tapply(weekday_data$steps,as.factor(weekday_data$interval),mean,simplify=F))
-plot(intervals,plot_weekday,type="l")
+
 
 plot_weekend <- as.numeric(tapply(weekend_data$steps,as.factor(weekend_data$interval),mean,simplify=F))
-plot(intervals,plot_weekend,type="l")
+
+plot_data = cbind(plot_weekday,plot_weekend)
+dayType = factor()
+for (i in seq(length(plot_weekday)))     dayType = rbind(dayType,"weekday")
+for (i in seq(length(plot_weekend)))    dayType = rbind(dayType,"weekend")
+
+intervals = c(intervals,intervals)
+panel_plot_data = data.frame(plot_data,intervals,dayType)
+library(lattice)
+xyplot(plot_data ~ intervals | dayType , data=panel_plot_data, type ="l")
 ```
-
-
